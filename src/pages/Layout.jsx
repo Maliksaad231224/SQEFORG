@@ -18,7 +18,6 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import TermsAcceptanceModal from "@/components/TermsAcceptanceModal";
 
 const practiceNav = [
     { title: "Question Bank", url: createPageUrl("QuestionBank"), icon: BrainCircuit },
@@ -112,7 +111,6 @@ export default function Layout({ children, currentPageName }) {
   const location = useLocation();
   const [user, setUser] = useState(null);
   const [loadingUser, setLoadingUser] = useState(true);
-  const [showTermsModal, setShowTermsModal] = useState(false);
 
   const isLegalPage = currentPageName === "TermsAndConditions" || currentPageName === "PrivacyPolicy";
 
@@ -127,10 +125,6 @@ export default function Layout({ children, currentPageName }) {
       try {
         const currentUser = await User.me();
         setUser(currentUser);
-        
-        if (!currentUser.terms_accepted) {
-          setShowTermsModal(true);
-        }
       } catch (e) {
         setUser(null);
       }
@@ -139,40 +133,8 @@ export default function Layout({ children, currentPageName }) {
     fetchUser();
   }, [location.pathname, isLegalPage]);
 
-  const handleTermsAccept = () => {
-    setShowTermsModal(false);
-    const reloadUser = async () => {
-      try {
-        const currentUser = await User.me();
-        setUser(currentUser);
-      } catch (e) {
-        setUser(null);
-      }
-    };
-    reloadUser();
-  };
-
   if (isLegalPage) {
     return <div className="min-h-screen w-full">{children}</div>;
-  }
-
-  if (showTermsModal && user) {
-    return (
-      <>
-        <TermsAcceptanceModal 
-          open={showTermsModal} 
-          user={user} 
-          onAccept={handleTermsAccept}
-        />
-        <div className="min-h-screen w-full bg-slate-900 flex items-center justify-center">
-          <div className="text-center text-white p-8">
-            <Shield className="w-16 h-16 mx-auto mb-4 text-amber-400" />
-            <h2 className="text-2xl font-bold mb-2">Terms Acceptance Required</h2>
-            <p className="text-slate-300">Please review and accept our terms to continue</p>
-          </div>
-        </div>
-      </>
-    );
   }
 
   const getFilteredTools = () => {

@@ -169,9 +169,30 @@ export const base44 = {
     }
   },
   auth: {
-    me: () => Promise.resolve({ email: "user@example.com", id: 1, name: "Mock User" }),
+    me: () => Promise.resolve({ 
+      email: import.meta.env.VITE_ADMIN_EMAIL || "user@example.com", 
+      id: parseInt(import.meta.env.VITE_ADMIN_ID || "1"), 
+      name: import.meta.env.VITE_ADMIN_NAME || "Mock User",
+      role: "admin",
+      subscription_tier: "ultimate",
+      mock_exam_credits: 999,
+      ai_credits: 999,
+      terms_accepted: true
+    }),
     isAuthenticated: () => Promise.resolve(true),
     redirectToLogin: (path) => console.log(`Redirecting to login from ${path}`),
-    updateMe: (data) => Promise.resolve({ ...data })
+    updateMe: (data) => Promise.resolve({ ...data }),
+    login: async (email, password) => {
+      if (email === import.meta.env.VITE_ADMIN_EMAIL && password === import.meta.env.VITE_ADMIN_PASSWORD) {
+        return Promise.resolve({ 
+          email: import.meta.env.VITE_ADMIN_EMAIL,
+          id: parseInt(import.meta.env.VITE_ADMIN_ID),
+          name: import.meta.env.VITE_ADMIN_NAME,
+          role: "admin",
+          subscription_tier: "ultimate"
+        });
+      }
+      return Promise.reject(new Error("Invalid credentials"));
+    }
   }
 };
